@@ -1,115 +1,138 @@
-import {View, Text, Switch, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import {useState} from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
+//import { Entypo } from '@expo/vector-icons'; 
+import { Entypo } from '@fortawesome/react-native-fontawesome';
+
 
 export default function App() {
-  const [darkTheme, setDarkTheme] = useState(false);
-  const [result, setResult] = useState('');
+  const [darkMode, setDarkMode] = useState(false)
+  const buttons = ['AC', 'DEL', '%', '/', 7, 8, 9, '*', 4, 5, 6, '-', 3, 2, 1, '+', 0, '.', '+/-', '=']  
 
-  const colors = {
-    dark: '#22252D',
-    dark1: '#292B36',
-    dark2: '#272B33',
-    light: '#FFF',
-    light1: 'rgb(220, 220, 220)',
-    light2: '#F7F7F7',
-  };
+  const [currentNumber, setCurrentNumber] = useState("")
+  const [lastNumber, setLastNumber] = useState("")
 
-  const calculate = (title) => {
-    if(title == 'C') {
-      setResult('')
-    } else if(title == 'DL') {
-      setResult(result.substring(0, result.length - 1));
-    }  else if(title == '=') {
-      const ans = Number(eval(result).toFixed(3)).toString();
-      setResult(ans);
-    } else {
-      setResult(result + title);
+
+  function calculator(){
+    const splitNumbers = currentNumber.split(' ')
+    const fistNumber = parseFloat(splitNumbers[0])
+    const lastNumber = parseFloat(splitNumbers[2])
+    const operator = splitNumbers[1]
+
+    switch(operator){
+      case '+':
+        setCurrentNumber((fistNumber + lastNumber).toString())
+        return
+      case '-': 
+        setCurrentNumber((fistNumber - lastNumber).toString())
+        return
+      case '*':
+        setCurrentNumber((fistNumber * lastNumber).toString())
+        return
+      case '/': 
+        setCurrentNumber((fistNumber / lastNumber).toString())
+        return
     }
-  } 
-
-  const Btn = ({title, type}) => (
-    <TouchableOpacity
-      onPress={() => calculate(title)}
-      style={{
-        backgroundColor: getColor(colors.light1, colors.dark2),
-        height: 70,
-        width: 70,
-        borderRadius: 10,
-        margin: 16,
-        padding: 10,
-        elevation: 4
-      }}>
-      <Text
-        style={{
-          fontSize: 37,
-          textAlign: 'center',
-          textAlignVertical: 'center',
-          color: getBtnColor(type)
-        }}>
-        {title}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const getBtnColor = (type) => {
-    if (type == 'top' ) {
-      return '#35FBD6'
-    } else if(type == 'right') {
-      return '#EB6363'
-    }
-    return getColor(colors.dark, colors.light);
   }
 
-  const getColor = (light, dark) => (darkTheme ? dark : light);
+  function handleInput(buttonPressed){
+    console.log(buttonPressed)
+    if(buttonPressed === '+' | buttonPressed === "-" | buttonPressed === "*" | buttonPressed === "/" ){
+      setCurrentNumber(currentNumber + " " + buttonPressed + " ")
+      return
+    }
+    switch(buttonPressed){
+      case 'DEL':
+        setCurrentNumber(currentNumber.substring(0, (currentNumber.length -1)))
+        return
+      case 'AC':
+        setLastNumber("")
+        setCurrentNumber("")
+        return
+      case '=':
+        setLastNumber(currentNumber + " = ")
+        calculator()
+        return
+      case '+/-':
+        return
+    }
+
+    setCurrentNumber(currentNumber + buttonPressed)
+  }
+
+  const styles = StyleSheet.create({
+    results: {
+      backgroundColor: darkMode ? "#282f3b" : "#f5f5f5",
+      width: '100%',
+      minHeight: 280,
+      alignItems: 'flex-end',
+      justifyContent: 'flex-end'
+    },
+    resultText: {
+      color: darkMode ? "#f5f5f5" : "#282F38",
+      margin: 10,
+      fontSize: 40
+    },
+
+    historyText:{
+      color: darkMode ? "#B5B7BB" : "#7c7c7c",
+      fontSize: 20,
+      marginRight: 10,
+      alignSelf: 'flex-end',
+    },
+    themeButton: {
+      alignSelf: 'flex-start',
+      bottom: 120,
+      margin: 10,
+      backgroundColor: darkMode ? "#7b8084" :"#e5e5e5",
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      
+    },
+    buttons: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    button: {
+      borderColor: darkMode ? '#3f4d5b' : "#e5e5e5",
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 90, 
+      minHeight: 90,
+      flex: 2,
+    },
+    textButton: {
+      color: darkMode ? "#b5b7bb" : "#7c7c7c",
+      fontSize: 20,
+    }, 
+  });
 
   return (
-    <View
-      style={{
-        height: '100%',
-        width: '100%',
-        paddingVertical: 20,
-        backgroundColor: getColor(colors.light, colors.dark),
-        alignItems: 'center',
-      }}>
-      <Switch
-        value={darkTheme}
-        onValueChange={() => setDarkTheme(!darkTheme)}
-        trackColor={{true: colors.light2, false: colors.dark2}}
-        thumbColor={getColor(colors.dark, colors.light)}
-      />
-      <Text
-        style={{
-          fontSize: 40,
-          width: '100%',
-          textAlign: 'right',
-          paddingRight: 20,
-          color: getColor(colors.dark, colors.light),
-          marginTop: 160, 
-          paddingBottom: 20
-        }}>
-        {result}
-      </Text>
-      <View style={{ flexDirection: "row", flexWrap: 'wrap', justifyContent: "center", backgroundColor: getColor(colors.light1, colors.dark1), elevation: 7, borderTopLeftRadius: 20, borderTopRightRadius: 20}}>
-        <Btn title="C" type="top" />
-        <Btn title="DL" type="top" />
-        <Btn title="/" type="top" />
-        <Btn title="%" type="top" />
-        <Btn title="7" type="number" />
-        <Btn title="8" type="number" />
-        <Btn title="9" type="number" />
-        <Btn title="*" type="right" />
-        <Btn title="4" type="number" />
-        <Btn title="5" type="number" />
-        <Btn title="6" type="number" />
-        <Btn title="+" type="right" />
-        <Btn title="1" type="number" />
-        <Btn title="2" type="number" />
-        <Btn title="3" type="number" />
-        <Btn title="-" type="right" />
-        <Btn title="00" type="number" />
-        <Btn title="0" type="number" />
-        <Btn title="." type="number" />
-        <Btn title="=" type="right" />
+    <View>
+      <View style={styles.results}>
+        {/* <TouchableOpacity style={styles.themeButton}>
+          <Entypo name={darkMode ? "light-up" : 'moon'} size={24} color={darkMode ? "white" : 'black'} onPress={() => darkMode ? setDarkMode(false) : setDarkMode(true)} />
+        </TouchableOpacity> */}
+        <Text style={styles.historyText}>{lastNumber}</Text>
+        <Text style={styles.resultText}>{currentNumber}</Text>
+      </View>
+      <View style={styles.buttons}>
+        {buttons.map((button) => 
+          button === '=' ?
+        <TouchableOpacity onPress={() => handleInput(button)} key={button} style={[styles.button, {backgroundColor: '#9DBC7B'}]}>
+          <Text style={[styles.textButton, {color: "white", fontSize: 30}]}>{button}</Text>
+        </TouchableOpacity>
+          :
+          <TouchableOpacity onPress={() => handleInput(button)} key={button} style={[styles.button, 
+          {backgroundColor: typeof(button) === 'number' ? darkMode === true ? '#303946' : '#fff': darkMode === true ? '#414853' : '#ededed'}]}>
+            <Text style={styles.textButton}>{button}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
